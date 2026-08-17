@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Quiz Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0a1f 0%, #2d1b3d 50%, #1a0a1f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(219, 112, 147, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 112, 219, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass Card Base */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(219, 112, 147, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(219, 112, 147, 0.8), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            text-align: center;
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff69b4, #da70d6, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(255, 105, 180, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .quiz-icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .btn {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff69b4, #da70d6);
+            color: white;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.8);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(219, 112, 147, 0.3);
+        }
+
+        /* Settings Screen */
+        .settings-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: #ff69b4;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .setting-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .setting-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 105, 180, 0.3);
+        }
+
+        .setting-label {
+            color: white;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .setting-desc {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            position: relative;
+            width: 56px;
+            height: 30px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #ff69b4, #da70d6);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+        }
+
+        .toggle input:checked + .toggle-slider::before {
+            transform: translateX(26px);
+        }
+
+        /* Difficulty Selection */
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .difficulty-btn {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.3), rgba(147, 112, 219, 0.3));
+            border-color: #ff69b4;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Quiz Screen */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .question-counter {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: #ff69b4;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+
+        .score-display {
+            background: rgba(255, 105, 180, 0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #ff69b4;
+            border: 1px solid rgba(255, 105, 180, 0.3);
+        }
+
+        .lifeline-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lifeline-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(155, 89, 182, 0.6);
+        }
+
+        .lifeline-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .timer-container {
+            margin-bottom: 25px;
+        }
+
+        .timer-bar-bg {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff69b4, #da70d6);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+
+        .timer-bar.warning {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+        }
+
+        .timer-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .question-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .question-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(255, 105, 180, 0.7);
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+
+        .question-text {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .answers-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .answer-btn:hover:not(:disabled):not(.correct):not(.wrong) {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 105, 180, 0.5);
+            transform: translateX(5px);
+            box-shadow: 0 0 25px rgba(255, 105, 180, 0.3);
+        }
+
+        .answer-btn.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .answer-btn.correct {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: #2ecc71;
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
+            animation: correctPulse 0.5s ease;
+        }
+
+        .answer-btn.wrong {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.5);
+            animation: wrongShake 0.5s ease;
+        }
+
+        .answer-btn.eliminated {
+            opacity: 0.3;
+            text-decoration: line-through;
+            pointer-events: none;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .option-label {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #ff69b4;
+            min-width: 40px;
+        }
+
+        .option-text {
+            color: white;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ff69b4, #da70d6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 105, 180, 0.3);
+            box-shadow: 0 10px 30px rgba(219, 112, 147, 0.2);
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #ff69b4;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff69b4, #da70d6);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+        }
+
+        .progress-text {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .title { font-size: 1.8rem; }
+            .glass-card { padding: 25px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .difficulty-options { grid-template-columns: repeat(2, 1fr); }
+            .btn { padding: 14px 30px; font-size: 1rem; }
+            .question-text { font-size: 1.1rem; }
+            .answer-btn { padding: 15px 18px; }
+            .quiz-header { flex-wrap: wrap; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- WELCOME SCREEN -->
+        <div id="welcome-screen" class="screen active">
+            <div class="glass-card welcome-screen">
+                <div class="quiz-icon">🧪</div>
+                <h1 class="title">SCIENCE QUIZ</h1>
+                <p class="subtitle">Chemistry & Physics Challenge</p>
+                <button class="btn btn-primary" onclick="showScreen('settings-screen')">
+                    Start Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- SETTINGS SCREEN -->
+        <div id="settings-screen" class="screen">
+            <div class="glass-card">
+                <h2 class="settings-title">⚙️ Quiz Settings</h2>
+                
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">⏱️ Timer Mode</div>
+                            <div class="setting-desc">30 seconds per question</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="timer-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">🆘 Lifelines</div>
+                            <div class="setting-desc">50:50 removes 2 wrong answers</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="lifeline-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">📊 Show Progress</div>
+                            <div class="setting-desc">Display question counter</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="progress-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">🎲 Shuffle Questions</div>
+                            <div class="setting-desc">Randomize question order</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="shuffle-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">📈 Difficulty Level</div>
+                            <div class="setting-desc">Filter questions by difficulty</div>
+                        </div>
+                    </div>
+                    <div class="difficulty-options">
+                        <button class="difficulty-btn active" data-difficulty="all">All</button>
+                        <button class="difficulty-btn" data-difficulty="easy">Easy (1-15)</button>
+                        <button class="difficulty-btn" data-difficulty="medium">Medium (16-30)</button>
+                        <button class="difficulty-btn" data-difficulty="hard">Hard (31+)</button>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">← Back</button>
+                    <button class="btn btn-primary" onclick="startQuiz()">Begin!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen" class="screen">
+            <div class="glass-card">
+                <div class="quiz-header">
+                    <div class="question-counter" id="question-counter">Question 1 of 76</div>
+                    <button class="lifeline-btn" id="lifeline-btn" onclick="useLifeline()">
+                        🆘 50:50
+                    </button>
+                    <div class="score-display" id="score-display">Score: 0</div>
+                </div>
+
+                <div class="timer-container" id="timer-container">
+                    <div class="timer-bar-bg">
+                        <div class="timer-bar" id="timer-bar"></div>
+                    </div>
+                    <div class="timer-text" id="timer-text">30s remaining</div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-number" id="question-category">CHEMISTRY</div>
+                    <div class="question-text" id="question-text">Loading question...</div>
+                </div>
+
+                <div class="answers-grid" id="answers-grid">
+                    <!-- Answers will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-screen" class="screen">
+            <div class="glass-card results-screen">
+                <div class="result-icon" id="result-icon">🎉</div>
+                <h2 class="result-title" id="result-title">Quiz Complete!</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="final-score">0</div>
+                        <div class="stat-label">Final Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="correct-count">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="wrong-count">0</div>
+                        <div class="stat-label">Wrong</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar" id="result-progress"></div>
+                    </div>
+                    <div class="progress-text" id="result-progress-text">0% Accuracy</div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showScreen('settings-screen')">Settings</button>
+                    <button class="btn btn-primary" onclick="startQuiz()">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ QUESTION DATABASE ============
+        const allQuestions = [
+            // CHEMISTRY QUESTIONS (1-30)
+            {
+                id: 1,
+                question: "How many isomers can be obtained from C₄H₁₀?",
+                options: ["0", "1", "2", "3"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 2,
+                question: "Water gas is a mixture of",
+                options: ["CO₂ and H₂", "CO and H₂O", "CO₂ and CO", "CO₂ and N₂"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 3,
+                question: "A salt which loses mass when exposed to air is",
+                options: ["hygroscopic", "deliquescent", "efflorescent", "fluorescent"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 4,
+                question: "Which type of hybridization gives tetrahedral molecules?",
+                options: ["sp", "sp³", "sp²", "sp³d²"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 5,
+                question: "Which of the following is a neutral oxide?",
+                options: ["Nitrogen (iv) oxide", "Carbon (iv) oxide", "Sulphur (vi) oxide", "Phosphorus (v) oxide"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 6,
+                question: "The maximum number of electrons that can be accommodated in the shell having principal quantum number 3 is",
+                options: ["3", "8", "10", "18"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 7,
+                question: "Methanol is obtained from wood by",
+                options: ["Esterification", "Bacterial decomposition", "Combustion", "Destructive distillation"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 8,
+                question: "The following acids are monobasic except",
+                options: ["Methanoic acid", "Dioxonitrate (iii) acid", "Ethanedioic acid", "Hydrochloric acid"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "hard"
+            },
+            {
+                id: 9,
+                question: "The reactions of ethylene are mainly",
+                options: ["Substitution reaction", "Addition reaction", "Addition polymerization", "Catalytic hydrogenation"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 10,
+                question: "Which of the following pH values is likely to be that of a slightly alkaline solution?",
+                options: ["2", "5", "7", "8"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 11,
+                question: "The halide used widely in photography is",
+                options: ["Ammonium chloride", "Calcium chloride", "Silver bromide", "Sodium bromide"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 12,
+                question: "Alkanes are used mainly",
+                options: ["In the production of plastics", "As domestic and industrial fuel", "In the textile industry", "As fine chemicals"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 13,
+                question: "The alloy used for metal work and plumbing contains",
+                options: ["Lead and tin", "Iron and carbon", "Copper and tin", "Aluminium and copper"],
+                correct: 0,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 14,
+                question: "An alkene may be converted to an alkane by",
+                options: ["Hydrogenation", "Hydrolysis", "Dehydration", "Halogenation"],
+                correct: 0,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 15,
+                question: "Examples of polymers include the following except",
+                options: ["Starch", "Nylon", "Wool", "Glass"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 16,
+                question: "Which of the following separation is routinely applied in the petroleum industry?",
+                options: ["Filtration", "Chromatography", "Evaporation", "Fractional distillation"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 17,
+                question: "Starch undergoes complete hydrolysis to produce",
+                options: ["Maltose", "Lactose", "Fructose", "Glucose"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 18,
+                question: "Which of the following solids has a network structure?",
+                options: ["Diamond", "Iodine", "Sulphur", "Graphite"],
+                correct: 0,
+                category: "Chemistry",
+                difficulty: "hard"
+            },
+            {
+                id: 19,
+                question: "The gas law which describes the relationship between volume and temperature is",
+                options: ["Boyle's law", "Charles' law", "Dalton's law", "Graham's law"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+             {
+                id: 20,
+                question: "Which of the following phenomena leads to decrease in volume of a liquid in an open container?",
+                options: ["Brownian motion", "Diffusion", "Evaporation", "Sublimation"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 21,
+                question: "Which of the following materials is classified as a non-biodegradable pollutant?",
+                options: ["Animal hide", "Paper", "Plastic", "Wood"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 22,
+                question: "Which of the following raw materials is used in a plastic industry?",
+                options: ["Ethane", "Methane", "Calcium", "Hydrogen"],
+                correct: 0,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 23,
+                question: "The following factors affect the solubility of a solid in a given solvent except",
+                options: ["Nature of solute", "Nature of solvent", "Pressure", "Temperature"],
+                correct: 2,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 24,
+                question: "When heat is absorbed during a chemical reaction, the reaction is said to be",
+                options: ["Adiabatic", "Endothermic", "Exothermic", "Isothermal"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 25,
+                question: "What happens at the cathode during electrolysis?",
+                options: ["Anion is oxidized", "Anion loses electrons", "Cation is oxidized", "Cation is discharged"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "hard"
+            },
+            {
+                id: 26,
+                question: "The separation of petroleum fraction depends on the differences in their",
+                options: ["Melting points", "Molar masses", "Solubilities", "Boiling points"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 27,
+                question: "The shape of a graphite crystal is",
+                options: ["Tetrahedral", "Pyramidal", "Octahedral", "Hexagonal"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "medium"
+            },
+            {
+                id: 28,
+                question: "The bond formed when ammonia reacts with hydrogen ion to form ammonium ion is",
+                options: ["Covalent", "Dative", "Hydrogen bond", "Ionic"],
+                correct: 1,
+                category: "Chemistry",
+                difficulty: "hard"
+            },
+            {
+                id: 29,
+                question: "Which of the following halogens is solid at room temperature?",
+                options: ["Bromide", "Chloride", "Fluoride", "Iodine"],
+                correct: 3,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+            {
+                id: 30,
+                question: "The shape of a molecule of water is",
+                options: ["Non-linear", "Octahedral", "Pyramidal", "Tetrahedral"],
+                correct: 0,
+                category: "Chemistry",
+                difficulty: "easy"
+            },
+
+            // PHYSICS GROUP 1 (31-47)
+            {
+                id: 31,
+                question: "Which of the following may eject electrons from a certain metal?",
+                options: ["Infrared", "Ultraviolet", "Red", "Green"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 32,
+                question: "An instrument used for detection of charge is called",
+                options: ["Electrogram", "Electroscope", "Electrophone", "Electrometer"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 33,
+                question: "Average power dissipated in an RLC circuit is given by?",
+                options: ["I²R", "I²Xc", "I²Xl", "IV"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 34,
+                question: "According to Bohr's atomic theory the following are quantized except",
+                options: ["Mass of an electron", "Angular momentum", "Orbits", "Velocity"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 35,
+                question: "A radio station broadcasts at a frequency of 15 × 10⁶ Hz. Calculate the length of the radio waves if the velocity is 3.0 × 10⁸ m/s.",
+                options: ["20 m", "45 m", "500 m", "5 m"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 36,
+                question: "Which of the following is not a complementary variable?",
+                options: ["Energy and time", "Energy and mass", "Energy and position", "Velocity and position"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 37,
+                question: "In electromagnetic induction process, the deflection in a galvanometer is zero if",
+                options: ["Coil is kept stationary with respect to the magnet", "Coil moves towards the magnet", "Magnet moves towards the coil", "Current flows through coil"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 38,
+                question: "The interaction between gamma ray and matter is known as",
+                options: ["Photoelectric effect", "Compton effect", "Pair production", "Thomson scattering"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 39,
+                question: "Which of the following molecular energies is discrete?",
+                options: ["Oscillatory", "Rotational", "Translational", "Electronic"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 40,
+                question: "A capacitor stores a charge of 4.0 × 10⁻⁴ C under a potential difference of 400 V. Calculate the capacitance.",
+                options: ["1.0 µF", "3.0 µF", "2.0 µF", "4.0 µF"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 41,
+                question: "Permanent magnet is made of steel because it ______ while temporary magnet is made of soft iron because it ______",
+                options: ["Retains magnetism, loses magnetism easily", "Both maintain no magnetism", "A conductor, not a conductor", "A metal, metalloid"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 42,
+                question: "Calculate the amount of charge when a current of 50 mA flows through an object for 2 mins.",
+                options: ["20 C", "12 C", "6 C", "3 C"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 43,
+                question: "What is the peak value of a voltage whose r.m.s value is 100 V?",
+                options: ["140 V", "141.4 V", "70 V", "50 V"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 44,
+                question: "Classically there are two forces responsible for keeping electrons in an orbit namely;",
+                options: ["Electric and magnetic", "Electric and centripetal", "Magnetic and coulomb", "None of the above"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 45,
+                question: "When radiation strikes a metal surface, the maximum kinetic energy acquired by an ejected electron depends on the",
+                options: ["Source of the radiation", "Intensity of the radiation", "Wavelength of the radiation", "Detection device for the electron"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 46,
+                question: "Two point charges each have a value of +30.0 µC and are separated by 4.00 cm. What is the electric field midway between the two charges?",
+                options: ["28.8 × 10⁹ N/C", "14.4 × 10⁹ N/C", "Zero", "7.19 × 10⁹ N/C"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 47,
+                question: "To convert galvanometer to Ammeter, we need to add a resistor called",
+                options: ["Shunt", "Multiplier", "Resistor", "Conductor"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "easy"
+            },
+
+            // PHYSICS GROUP 2 (48-64)
+            {
+                id: 48,
+                question: "Electric field is a vector and its direction is the same as that of the",
+                options: ["Charge", "Area", "Force", "Intensity"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 49,
+                question: "A copper wire of length 25 cm is in a magnetic field of 0.20 T. If it has a mass of 10 g, what is the minimum current through the wire that would cause a magnetic force equal to its weight?",
+                options: ["1.3 A", "1.5 A", "2.0 A", "4.9 A"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 50,
+                question: "______ is a circuit whose current is maximum and impedance is minimum.",
+                options: ["Series RLC circuit", "Parallel RLC circuit", "RC circuit", "RL circuit"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "medium"
+            },
+           {
+                id: 51,
+                question: "In mathematical expression, electric field is defined as",
+                options: ["F/A", "F/q", "q/t", "q/V"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 52,
+                question: "Einstein photoelectric equation is",
+                options: ["hf = hf₀ + ½mv²", "E = mc²", "V = IR", "P = IV"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 53,
+                question: "The reactances in AC circuit are",
+                options: ["Mutual reactance and self-reactance", "Magnetic reactance and electrical reactance", "Faraday's reactance and Lenz's reactance", "Capacitive reactance and inductive reactance"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 54,
+                question: "Which one of the following scientists made the theoretical prediction that electromagnetic waves travel through a vacuum at the speed of light?",
+                options: ["Hertz", "Faraday", "Maxwell", "Lenz"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 55,
+                question: "Which statement is NOT true about current flowing in a superconductor?",
+                options: ["A battery is needed to keep the current flowing", "Electrical charges are moving", "The resistance is zero", "No power is given in the form of heat"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 56,
+                question: "If body M, with a positive charge, is used to charge body N by induction. What will be the nature of the charge left on the latter?",
+                options: ["Must be equal in magnitude to that on M", "Must be negative", "Must be positive", "Must be greater in magnitude than that on M"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 57,
+                question: "Einstein's theory of relativity is based in part on which one of the following postulates?",
+                options: ["Mass and energy are equivalent", "Space and time are absolutes", "Energy is conserved only in elastic collisions", "Speed of light in a vacuum is the same for all observers"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 58,
+                question: "A solar panel measures 80 cm × 50 cm. In direct sunlight, the panel delivers 3.2 A at 15 V. If the intensity of sunlight is 1000 W/m², what is the efficiency of the solar panel?",
+                options: ["24%", "18%", "12%", "6.0%"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 59,
+                question: "Two equal charges, each Q, are separated by some distance. What third charge would need to be placed half way between the two charges so that the net force on each charge would be zero?",
+                options: ["-Q", "-Q/2", "-Q/4", "-Q/8"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 60,
+                question: "Electric field is dimensionally equivalent to which of the following?",
+                options: ["Nm/C", "N/C", "N/m²", "N/e"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 61,
+                question: "A charge of +2 C is at the origin. When charge Q is placed at 2 m along the positive x-axis, the electric field at 2 m along the negative x-axis becomes zero. What is the value of Q?",
+                options: ["-3 C", "-6 C", "-7 C", "-8 C"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 62,
+                question: "A capacitor of capacitance 5 µF is subjected to a potential difference of 1000 V. Calculate the energy stored.",
+                options: ["3.5 J", "4.5 J", "2.5 J", "1.5 J"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 63,
+                question: "A spherical surface surrounds a point charge at its centre. If the charge is doubled and the radius of the surface is also doubled, what happens to the electric flux ΦE and the magnitude E of the electric field at the surface?",
+                options: ["ΦE and E do not change", "ΦE increases and E remains the same", "ΦE increases and E decreases", "ΦE increases and E increases"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "hard"
+            },
+
+            // PHYSICS GROUP 3 (64-76)
+            {
+                id: 64,
+                question: "How long is a wire made from 1000 cm³ of copper if its resistance is 8.5 Ω? (Resistivity of copper = 1.7 × 10⁻⁸ Ωm)",
+                options: ["7.1 m", "170 m", "0.022 m", "30 m"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 65,
+                question: "In contrast to Thomson's model of the atom, Rutherford's model",
+                options: ["Had the positive charge spread uniformly through the atom", "Had the positive charge concentrated in a small region", "Was first to explain atoms emitting discrete frequencies", "Eliminated radiation from accelerating charges"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 66,
+                question: "Two capacitors with CA > CB are connected in parallel with a battery. Which of the following is true?",
+                options: ["There is more potential difference across CA", "There is more potential difference across CB", "There is the same charge stored on each capacitor", "There is the same potential difference across both capacitors"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 67,
+                question: "Consider some material that has been cooled until it has become a superconductor. If it is cooled even further its resistance will:",
+                options: ["Increase", "Decrease", "Stay constant and non-zero", "Remain zero"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 68,
+                question: "Three resistors, each of different value, are used in a circuit with a power source supplying 12 volts. For which of the following resistor combinations is the total power supplied the greatest?",
+                options: ["All three resistors in series", "All three resistors in parallel", "Two of the resistors in parallel with the third in series", "Cannot be determined"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 69,
+                question: "If the work function of a metal is 3.7 eV, calculate the threshold frequency.",
+                options: ["7.96 × 10¹⁴ Hz", "6.54 × 10¹⁴ Hz", "8.96 × 10¹⁴ Hz", "5.86 × 10¹⁴ Hz"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 70,
+                question: "Cathode ray oscilloscope is useful in investigating",
+                options: ["Wood", "Atmosphere", "Electronic circuits", "Crime"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 71,
+                question: "If an ionizing particle enters a G-M tube, some argon atoms are ionized by what?",
+                options: ["Separation", "Conjugation", "Collision", "Fixation"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 72,
+                question: "Find the resonance frequency of a series RLC circuit: R = 10Ω, L = 2 H, C = 1µF",
+                options: ["112.5 Hz", "222.2 Hz", "125.5 Hz", "157.3 Hz"],
+                correct: 0,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 73,
+                question: "Find the equivalent heating effect for current if the maximum current in an AC circuit is 5 A.",
+                options: ["5 A RMS", "3.5 A RMS", "4.12 A RMS", "4.3 A RMS"],
+                correct: 1,
+                category: "Physics",
+                difficulty: "medium"
+            },
+            {
+                id: 74,
+                question: "If a sinusoidal waveform of an AC circuit is given as V(t) = 45 sin 1000t V. Find the crest factor.",
+                options: ["1.556", "2.132", "1.325", "1.414"],
+                correct: 3,
+                category: "Physics",
+                difficulty: "hard"
+            },
+            {
+                id: 75,
+                question: "Which scientist predicted electromagnetic waves travel at speed of light?",
+                options: ["Hertz", "Faraday", "Maxwell", "Einstein"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "easy"
+            },
+            {
+                id: 76,
+                question: "What is the unit of electric field strength?",
+                options: ["V/m", "N/C", "Both V/m and N/C", "J/C"],
+                correct: 2,
+                category: "Physics",
+                difficulty: "easy"
+            }
+        ];
+
+        // ============ GAME STATE ============
+        let gameState = {
+            currentQuestion: 0,
+            score: 0,
+            correctCount: 0,
+            wrongCount: 0,
+            questions: [],
+            lifelineUsed: false,
+            timerEnabled: true,
+            lifelineEnabled: true,
+            progressEnabled: true,
+            shuffleEnabled: false,
+            difficulty: 'all',
+            timerInterval: null,
+            timeRemaining: 30
+        };
+
+        // ============ SCREEN NAVIGATION ============
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // ============ DIFFICULTY SELECTION ============
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                gameState.difficulty = this.dataset.difficulty;
+            });
+        });
+
+        // ============ START QUIZ ============
+        function startQuiz() {
+            // Get settings
+            gameState.timerEnabled = document.getElementById('timer-toggle').checked;
+            gameState.lifelineEnabled = document.getElementById('lifeline-toggle').checked;
+            gameState.progressEnabled = document.getElementById('progress-toggle').checked;
+            gameState.shuffleEnabled = document.getElementById('shuffle-toggle').checked;
+
+            // Filter questions by difficulty
+            let filteredQuestions = [...allQuestions];
+            
+            if (gameState.difficulty === 'easy') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === 'easy');
+            } else if (gameState.difficulty === 'medium') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === 'medium');
+            } else if (gameState.difficulty === 'hard') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === 'hard');
+            }
+
+            // Shuffle if enabled
+            if (gameState.shuffleEnabled) {
+                filteredQuestions = shuffleArray(filteredQuestions);
+            }
+
+            // Reset game state
+            gameState.questions = filteredQuestions;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.correctCount = 0;
+            gameState.wrongCount = 0;
+            gameState.lifelineUsed = false;
+
+            showScreen('quiz-screen');
+            displayQuestion();
+        }
+
+        // ============ SHUFFLE ARRAY ============
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // ============ DISPLAY QUESTION ============
+        function displayQuestion() {
+            const question = gameState.questions[gameState.currentQuestion];
+            const totalQuestions = gameState.questions.length;
+
+            // Update header
+            if (gameState.progressEnabled) {
+                document.getElementById('question-counter').textContent = 
+                    `Question ${gameState.currentQuestion + 1} of ${totalQuestions}`;
+                document.getElementById('question-counter').style.display = 'block';
+            } else {
+                document.getElementById('question-counter').style.display = 'none';
+            }
+
+            // Update score
+            document.getElementById('score-display').textContent = `Score: ${gameState.score}`;
+
+            // Update lifeline button
+            const lifelineBtn = document.getElementById('lifeline-btn');
+            if (gameState.lifelineEnabled && !gameState.lifelineUsed) {
+                lifelineBtn.style.display = 'flex';
+                lifelineBtn.disabled = false;
+            } else {
+                lifelineBtn.style.display = 'none';
+            }
+
+            // Update category
+            document.getElementById('question-category').textContent = question.category.toUpperCase();
+
+            // Update question text
+            document.getElementById('question-text').textContent = question.question;
+
+            // Create answer buttons
+            const labels = ['A', 'B', 'C', 'D'];
+            const answersGrid = document.getElementById('answers-grid');
+            answersGrid.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.innerHTML = `
+                    <span class="option-label">${labels[index]}</span>
+                    <span class="option-text">${option}</span>
+                `;
+                btn.onclick = () => selectAnswer(index);
+                answersGrid.appendChild(btn);
+            });
+
+            // Setup timer
+            if (gameState.timerEnabled) {
+                document.getElementById('timer-container').style.display = 'block';
+                gameState.timeRemaining = 30;
+                startTimer();
+            } else {
+                document.getElementById('timer-container').style.display = 'none';
+            }
+        }
+
+        // ============ TIMER ============
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            
+            const timerBar = document.getElementById('timer-bar');
+            const timerText = document.getElementById('timer-text');
+            
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('warning');
+
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeRemaining -= 0.1;
+                
+                const percentage = (gameState.timeRemaining / 30) * 100;
+                timerBar.style.width = percentage + '%';
+                timerText.textContent = `${Math.ceil(gameState.timeRemaining)}s remaining`;
+
+                if (gameState.timeRemaining <= 10) {
+                    timerBar.classList.add('warning');
+                }
+
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    timeUp();
+                }
+            }, 100);
+        }
+
+        function timeUp() {
+            const question = gameState.questions[gameState.currentQuestion];
+            const answers = document.querySelectorAll('.answer-btn');
+            
+            // Disable all answers
+            answers.forEach(a => a.classList.add('disabled'));
+            
+            // Show correct answer
+            answers[question.correct].classList.add('correct');
+            
+            gameState.wrongCount++;
+
+            // Move to next question after delay
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        // ============ SELECT ANSWER ============
+        function selectAnswer(selectedIndex) {
+            clearInterval(gameState.timerInterval);
+
+            const question = gameState.questions[gameState.currentQuestion];
+            const answers = document.querySelectorAll('.answer-btn');
+
+            // Disable all answers
+            answers.forEach(a => a.classList.add('disabled'));
+
+            // Mark correct and wrong
+            answers[question.correct].classList.add('correct');
+            
+            if (selectedIndex === question.correct) {
+                gameState.score += 10;
+                gameState.correctCount++;
+                gameState.score += 10;
+                document.getElementById('score-display').textContent = `Score: ${gameState.score}`;
+            } else {
+                answers[selectedIndex].classList.add('wrong');
+                gameState.wrongCount++;
+            }
+
+            // Move to next question after delay
+            setTimeout(() => {
+                nextQuestion();
+            }, 1500);
+        }
+
+        // ============ NEXT QUESTION ============
+        function nextQuestion() {
+            gameState.currentQuestion++;
+
+            if (gameState.currentQuestion >= gameState.questions.length) {
+                showResults();
+            } else {
+                displayQuestion();
+            }
+        }
+
+        // ============ USE LIFELINE (50:50) ============
+        function useLifeline() {
+            if (gameState.lifelineUsed) return;
+
+            gameState.lifelineUsed = true;
+            document.getElementById('lifeline-btn').disabled = true;
+            document.getElementById('lifeline-btn').style.opacity = '0.5';
+
+            const question = gameState.questions[gameState.currentQuestion];
+            const answers = document.querySelectorAll('.answer-btn');
+
+            // Get wrong answer indices
+            const wrongAnswers = [];
+            for (let i = 0; i < question.options.length; i++) {
+                if (i !== question.correct) {
+                    wrongAnswers.push(i);
+                }
+            }
+
+            // Remove 2 wrong answers randomly
+            const shuffled = shuffleArray(wrongAnswers);
+            const toRemove = shuffled.slice(0, 2);
+
+            toRemove.forEach(index => {
+                answers[index].classList.add('eliminated');
+            });
+        }
+
+         // ============ SHOW RESULTS ============
+        function showResults() {
+            clearInterval(gameState.timerInterval);
+
+            const totalQuestions = gameState.questions.length;
+            const accuracy = totalQuestions > 0 ? Math.round((gameState.correctCount / totalQuestions) * 100) : 0;
+
+            // Update result display
+            document.getElementById('final-score').textContent = gameState.score;
+            document.getElementById('correct-count').textContent = gameState.correctCount;
+            document.getElementById('wrong-count').textContent = gameState.wrongCount;
+            document.getElementById('result-progress').style.width = accuracy + '%';
+            document.getElementById('result-progress-text').textContent = accuracy + '% Accuracy';
+
+            // Set result icon and title based on performance
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+
+            if (accuracy >= 80) {
+                resultIcon.textContent = '🏆';
+                resultTitle.textContent = 'Outstanding!';
+            } else if (accuracy >= 60) {
+                resultIcon.textContent = '🎉';
+                resultTitle.textContent = 'Great Job!';
+            } else if (accuracy >= 40) {
+                resultIcon.textContent = '💪';
+                resultTitle.textContent = 'Good Effort!';
+            } else {
+                resultIcon.textContent = '📚';
+                resultTitle.textContent = 'Keep Learning!';
+            }
+
+            showScreen('results-screen');
+        }
+    </script>
+</body>
+</html>
