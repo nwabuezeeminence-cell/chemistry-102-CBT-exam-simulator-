@@ -3,38 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Science Quiz Challenge</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Science Quiz - Who Wants to Be a Millionaire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1a0a1f 0%, #2d1b3d 50%, #1a0a1f 100%);
+            background: linear-gradient(135deg, #0d0015 0%, #1a0a2e 25%, #2d1b4e 50%, #1a0a2e 75%, #0d0015 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow-x: hidden;
+            color: white;
         }
-
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(219, 112, 147, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(147, 112, 219, 0.3) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
+                radial-gradient(ellipse at 10% 90%, rgba(219, 112, 147, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 10%, rgba(147, 112, 219, 0.4) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 1400px; }
+        .screen { display: none; animation: fadeIn 0.5s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 105, 180, 0.5); } 50% { box-shadow: 0 0 40px rgba(255, 105, 180, 0.8); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        @keyframes sparkleAnim { 0% { opacity: 0; transform: scale(0) rotate(0deg); } 50% { opacity: 1; transform: scale(1.2) rotate(180deg); } 100% { opacity: 0; transform: scale(0) rotate(360deg); } }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(219, 112, 147, 0.2);
+            position: relative; overflow: hidden;
+        }
+        /* Welcome Screen */
+        .welcome-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 85vh; text-align: center; padding: 40px; }
+        .welcome-icon { font-size: 7rem; margin-bottom: 20px; animation: bounce 2s infinite; filter: drop-shadow(0 0 30px rgba(255, 105, 180, 0.8)); }
+        .welcome-title {
+            font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900;
+            background: linear-gradient(135deg, #ff69b4, #ff1493, #da70d6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 10px; letter-spacing: 2px;
+        }
+        .welcome-subtitle { color: rgba(255, 255, 255, 0.7); font-size: 1.1rem; margin-bottom: 15px; }
+        .question-count-display { background: rgba(255, 105, 180, 0.2); padding: 10px 25px; border-radius: 30px; color: #ff69b4; font-weight: 600; margin-bottom: 35px; border: 1px solid rgba(255, 105, 180, 0.3); }
+        .btn {
+            font-family: 'Poppins', sans-serif; font-weight: 600; padding: 18px 50px;
+            font-size: 1rem; border: none; border-radius: 50px; cursor: pointer;
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff69b4, #da70d6); color: white;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+        }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 0 50px rgba(255, 105, 180, 0.8); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.3); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+        /* Settings Screen */
+        .settings-container { max-width: 700px; margin: 0 auto; padding: 40px; }
+        .settings-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #ff69b4; text-align: center; margin-bottom: 25px; }
+        .settings-grid { display: grid; gap: 15px; margin-bottom: 25px; }
+        .setting-item {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .setting-label { color: white; font-weight: 500; }
+        .setting-desc { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; margin-top: 3px; }
+        .toggle { position: relative; width: 56px; height: 30px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.2); border-radius: 30px; transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute; height: 22px; width: 22px; left: 4px; bottom: 4px;
+            background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .toggle input:checked + .toggle-slider { background: linear-gradient(135deg, #ff69b4, #da70d6); }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(26px); }
+        .difficulty-container { margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; }
+        .difficulty-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .difficulty-btn {
+            padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px; color: white; cursor: pointer; transition: 0.3s; font-size: 0.85rem; text-align: center;
+        }
+        .difficulty-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .difficulty-btn.active { background: rgba(255, 105, 180, 0.4); border-color: #ff69b4; }
+        .btn-group { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
+        /* Quiz Layout */
+        .quiz-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+        /* Prize Ladder */
+        .prize-ladder {
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 18px;
+        }
+        .ladder-title { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: #ff69b4; text-align: center; margin-bottom: 12px; }
+        .ladder-item {
+            padding: 7px 10px; margin: 2px 0; border-radius: 8px; display: flex; justify-content: space-between;
+            align-items: center; font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); transition: 0.3s;
+        }
+        .ladder-item.reached { background: rgba(255, 105, 180, 0.2); color: rgba(255, 255, 255, 0.8); }
+        .ladder-item.current { background: linear-gradient(135deg, rgba(255, 105, 180, 0.4), rgba(147, 112, 219, 0.4)); color: white; transform: scale(1.05); font-weight: 600; }
+        .ladder-item.safe { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .ladder-item.jackpot { background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3)); color: #ffd700; font-weight: 700; }
+        .ladder-item.jackpot.current { animation: glow 2s infinite; }
+        .prize-amount { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; }
+        .ladder-index { width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; margin-right: 6px; }
+        .ladder-item.current .ladder-index { background: #ff69b4; color: white; }
+        .ladder-item.jackpot .ladder-index { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; }
+        /* Quiz Main */
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: rgba(0,0,0,0.3); border-radius: 16px; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .question-counter { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff69b4; }
+        .score-display { background: rgba(255, 105, 180, 0.2); padding: 8px 16px; border-radius: 30px; font-weight: 600; color: #ff69b4; border: 1px solid rgba(255, 105, 180, 0.3); }
+        .lifeline-btn { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
+        .lifeline-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 25px rgba(155, 89, 182, 0.6); }
+        .lifeline-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .timer-container { margin-bottom: 12px; }
+        .timer-bar-bg { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+        .timer-bar { height: 100%; background: linear-gradient(90deg, #ff69b4, #da70d6); border-radius: 10px; transition: width 0.1s linear; box-shadow: 0 0 15px rgba(255, 105, 180, 0.5); }
+        .timer-bar.warning { background: linear-gradient(90deg, #ff6b6b, #ee5a24); animation: pulse 0.5s infinite; }
+        .timer-text { text-align: center; margin-top: 5px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); }
+        .question-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 28px; margin-bottom: 18px; text-align: center; }
+        .question-number { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: rgba(255, 105, 180, 0.7); margin-bottom: 10px; letter-spacing: 2px; }
+        .question-text { color: white; font-size: 1.15rem; font-weight: 500; line-height: 1.5; }
+        .answers-grid { display: grid; gap: 10px; }
+        .answer-btn {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 16px;
+            padding: 16px 20px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 12px;
+        }
+        .answer-btn:hover:not(:disabled):not(.correct):not(.wrong):not(.eliminated) {
+            background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 105, 180, 0.5); transform: translateX(5px); box-shadow: 0 0 25px rgba(255, 105, 180, 0.3);
+        }
+        .answer-btn.disabled { pointer-events: none; opacity: 0.5; }
+        .answer-btn.correct { background: rgba(46, 204, 113, 0.3); border-color: #2ecc71; box-shadow: 0 0 30px rgba(46, 204, 113, 0.5); animation: pulse 0.5s; }
+        .answer-btn.wrong { background: rgba(231, 76, 60, 0.3); border-color: #e74c3c; box-shadow: 0 0 30px rgba(231, 76, 60, 0.5); animation: shake 0.5s; }
+        .answer-btn.eliminated { opacity: 0.25; text-decoration: line-through; pointer-events: none; }
+        .option-label { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.95rem; color: #ff69b4; min-width: 32px; }
+        .option-text { color: white; font-weight: 500; flex: 1; font-size: 0.95rem; }
+        /* Results */
+        .results-container { max-width: 650px; margin: 0 auto; padding: 40px; text-align: center; }
+        .result-icon { font-size: 5rem; margin-bottom: 15px; }
+        .result-title { font-family: 'Orbitron', sans-serif; font-size: 2rem; background: linear-gradient(135deg, #ff69b4, #da70d6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+        .result-subtitle { color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 18px 10px; }
+        .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 900; color: #ff69b4; margin-bottom: 4px; }
+        .stat-label { color: rgba(255, 255, 255, 0.6); font-size: 0.75rem; }
+        .progress-container { margin: 20px 0; }
+        .progress-bar-bg { height: 12px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff69b4, #da70d6); border-radius: 10px; transition: width 0.5s; }
+        .progress-text { color: rgba(255, 255, 255, 0.7); margin-top: 8px; font-size: 0.85rem; }
+        .celebration { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
+        .confetti { position: absolute; width: 12px; height: 12px; border-radius: 50%; animation: confettiFall 4s linear forwards; }
+        .sparkle-text { position: fixed; font-size: 3rem; animation: sparkleAnim 1s ease forwards; pointer-events: none; z-index: 1001; }
+        @media (max-width: 950px) { .quiz-layout { grid-template-columns: 1fr; } .prize-ladder { order: -1; } .ladder-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; } .ladder-item { padding: 5px 8px; font-size: 0.65rem; } }
+        @media (max-width: 600px) { .welcome-title { font-size: 1.6rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .difficulty-options { grid-template-columns: repeat(2, 1fr); } .btn { padding: 14px 30px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- WELCOME SCREEN -->
+        <div id="welcome-screen" class="screen active">
+            <div class="glass-card welcome-container">
+                <div class="welcome-icon">💰</div>
+                <h1 class="welcome-title">WHO WANTS TO BE A MILLIONAIRE</h1>
+                <p class="welcome-subtitle">Science Quiz Challenge • Chemistry & Physics</p>
+                <div class="question-count-display">📝 110+ Questions Available</div>
+                <button class="btn btn-primary" onclick="playSound('start'); showScreen('settings-screen')">🎯 Start Quiz</button>
+            </div>
+        </div>
+
+        <!-- SETTINGS SCREEN -->
+        <div id="settings-screen" class="screen">
+            <div class="glass-card settings-container">
+                <h2 class="settings-title">⚙️ Quiz Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <div><div class="setting-label">⏱️ Timer Mode</div><div class="setting-desc">30 seconds per question</div></div>
+                        <label class="toggle"><input type="checkbox" id="timer-toggle" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">🆘 Lifelines</div><div class="setting-desc">50:50 removes 2 wrong answers</div></div>
+                        <label class="toggle"><input type="checkbox" id="lifeline-toggle" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">📊 Show Progress</div><div class="setting-desc">Display question counter</div></div>
+                        <label class="toggle"><input type="checkbox" id="progress-toggle" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">🎲 Shuffle Questions</div><div class="setting-desc">Randomize question order</div></div>
+                        <label class="toggle"><input type="checkbox" id="shuffle-toggle" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="difficulty-container">
+                        <div class="setting-label">📈 Difficulty Level</div>
+                        <div class="difficulty-options">
+                            <button class="difficulty-btn active" data-difficulty="all">All</button>
+                            <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+                            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">← Back</button>
+                    <button class="btn btn-primary" onclick="playSound('start'); startQuiz()">🚀 Begin!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-layout">
+                <div class="prize-ladder">
+                    <h3 class="ladder-title">💷 PRIZE LADDER</h3>
+                    <div class="ladder-container" id="prize-ladder"></div>
+                </div>
+                <div class="quiz-main">
+                    <div class="glass-card" style="padding: 22px;">
+                        <div class="quiz-header">
+                            <div class="question-counter" id="question-counter">Question 1 of 110</div>
+                            <button class="lifeline-btn" id="lifeline-btn" onclick="useLifeline()">🆘 50:50</button>
+                            <div class="score-display" id="score-display">💷 0</div>
+                        </div>
+                        <div class="timer-container" id="timer-container">
+                            <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar"></div></div>
+                            <div class="timer-text" id="timer-text">30s remaining</div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-number" id="question-category">CHEMISTRY</div>
+                            <div class="question-text" id="question-text">Loading...</div>
+                        </div>
+                        <div class="answers-grid" id="answers-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-screen" class="screen">
+            <div class="glass-card results-container">
+                <div class="result-icon" id="result-icon">🏆</div>
+                <h2 class="result-title" id="result-title">Quiz Complete!</h2>
+                <p class="result-subtitle" id="result-subtitle">You've completed all questions!</p>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="final-prize">💷 0</div><div class="stat-label">Final Prize</div></div>
+                    <div class="stat-card"><div class="stat-value" id="correct-count">0</div><div class="stat-label">Correct</div></div>
+                    <div class="stat-card"><div class="stat-value" id="wrong-count">0</div><div class="stat-label">Wrong</div></div>
+                    <div class="stat-card"><div class="stat-value" id="accuracy">0%</div><div class="stat-label">Accuracy<            z-index: 0;
         }
 
         .container {
